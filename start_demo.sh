@@ -65,8 +65,20 @@ if [[ ! -f data/processed/clean_transactions.csv ]]; then
 fi
 
 if [[ "$MODE" == "--live" ]]; then
-  if ! .venv/bin/python -c 'from dotenv import dotenv_values; import sys; k=dotenv_values(".env").get("GEMINI_API_KEY", "").strip(); sys.exit(0 if k and k != "your_key_here" else 1)'; then
-    printf 'Live mode needs GEMINI_API_KEY in .env. Use ./start_demo.sh for keyless replay mode.\n' >&2
+  if ! .venv/bin/python - <<'PY'
+from dotenv import load_dotenv
+from src.core.errors import LLMUnavailable
+from src.llm.client import create_llm_client
+
+load_dotenv(".env")
+try:
+    client = create_llm_client()
+    print(f"Live model ready: {client.model}")
+except LLMUnavailable as error:
+    raise SystemExit(str(error))
+PY
+  then
+    printf 'Live mode needs the configured model available. Check LLM_PROVIDER/OLLAMA_MODEL in .env, or use ./start_demo.sh for replay mode.\n' >&2
     exit 1
   fi
 fi

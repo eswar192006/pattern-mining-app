@@ -4,7 +4,7 @@
 
 ## Local demo quick start
 
-This is a local application. It uses the UCI Online Retail data, Java/SPMF for revenue mining, a FastAPI backend and a Streamlit interface. The default presentation mode uses saved language responses and needs no Gemini key or network connection after setup.
+This is a local application. It uses the UCI Online Retail data, Java/SPMF for revenue mining, a FastAPI backend and a Streamlit interface. The default presentation mode uses saved language responses and needs no live model connection after setup. Live mode uses Ollama locally by default.
 
 ### One-command launch
 
@@ -18,7 +18,7 @@ From the project directory, run:
 
 This creates `.venv` if needed, installs the pinned packages from `requirements.lock.txt`, prepares the local data if necessary, starts the API and Streamlit at <http://127.0.0.1:8501>. The default is **replay mode**: six saved interpretations and explanations are used, while the mining algorithms run against the local dataset. The app labels replay mode on screen. No Gemini key is read and no Gemini requests are sent. Press Ctrl+C to stop both services. If the default ports are already in use, stop the existing services or choose different ones, for example `API_PORT=8100 UI_PORT=8601 ./start_demo.sh`.
 
-To use Gemini instead, put a key in `.env` based on `.env.example`, then run `./start_demo.sh --live`. This mode uses internet access and Gemini quota. Never commit `.env` or share its key.
+For live local question interpretation, start the Ollama app, download the default model with `ollama pull qwen3.5:4b` if needed, check it with `.venv/bin/python -m src.check_ollama`, then run `./start_demo.sh --live`. To select another local model, set `OLLAMA_MODEL` in `.env`. Gemini remains available by setting `LLM_PROVIDER=gemini` and `GEMINI_API_KEY` in `.env`.
 
 ### Architecture
 
@@ -26,7 +26,7 @@ To use Gemini instead, put a key in `.env` based on `.env.example`, then run `./
 flowchart LR
     U[User] --> UI[Streamlit UI]
     UI --> API[FastAPI API]
-    API --> L[Gemini or local replay adapter]
+    API --> L[Ollama, optional Gemini, or replay adapter]
     L --> V[Request validation]
     V --> M[Exact mining engine]
     M --> F[(Local cleaned retail data)]
@@ -792,8 +792,9 @@ pattern-mining-app/
 │   ├── demo_huim.py        Try high-utility mining from the command line
 │   ├── demo_engine.py      Try the unified engine with a JSON request
 │   ├── demo_validate.py    Try the validator with a spec (add --run to also mine it)
-│   ├── check_gemini.py     One-command check of your Gemini key, model name and request format
-│   ├── demo_parse.py       Ask one question in plain English (needs your Gemini key)
+│   ├── check_ollama.py     One-command check of the local Ollama model and JSON response
+│   ├── check_gemini.py     Optional Gemini connection check
+│   ├── demo_parse.py       Ask one question in plain English using the configured provider
 │   └── demo_chat.py        Chat: ask, then refine ("only Sundays", "now by money", "undo")
 │
 ├── tests/                  Automated tests (run with: python -m pytest -q)
@@ -885,7 +886,7 @@ python3 -m venv .venv
 .venv/bin/python -m pytest -q
 ```
 
-For the packaged local demo, run `./start_demo.sh`. To start services separately during development, set `DEMO_REPLAY=1`, then run `.venv/bin/python -m uvicorn api.main:create_app --factory --port 8000` and `.venv/bin/python -m streamlit run ui/app.py` in separate terminals. For Gemini, copy `.env.example` to `.env`, set `GEMINI_API_KEY`, and use `./start_demo.sh --live`. Java 11 or newer and `tools/spmf.jar` are required for high-utility mining.
+For the packaged local demo, run `./start_demo.sh`. To start services separately during development, set `DEMO_REPLAY=1`, then run `.venv/bin/python -m uvicorn api.main:create_app --factory --port 8000` and `.venv/bin/python -m streamlit run ui/app.py` in separate terminals. For live local Ollama, start Ollama, pull `qwen3.5:4b`, and use `./start_demo.sh --live`. To use Gemini instead, set `LLM_PROVIDER=gemini` and `GEMINI_API_KEY` in `.env`. Java 11 or newer and `tools/spmf.jar` are required for high-utility mining.
 
 ## 7. Terminal commands for each step
 
@@ -1008,7 +1009,7 @@ To run all phases in one command, use `.venv/bin/python -m evaluation.run --phas
 ./start_demo.sh
 ```
 
-This starts replay mode at <http://127.0.0.1:8501>; use the six prompts in [`demo/walkthrough.md`](demo/walkthrough.md). For live Gemini instead, run `./start_demo.sh --live` after setting `.env`. The live mode requires internet access and available quota.
+This starts replay mode at <http://127.0.0.1:8501>; use the six prompts in [`demo/walkthrough.md`](demo/walkthrough.md). For live Ollama, start the Ollama app, make sure `qwen3.5:4b` is installed, then run `./start_demo.sh --live`. Set `LLM_PROVIDER=gemini` in `.env` to use Gemini instead.
 
 ### Full test suite
 

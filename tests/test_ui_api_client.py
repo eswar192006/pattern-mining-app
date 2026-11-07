@@ -110,9 +110,9 @@ def test_rate_limit_keeps_the_wait_time():
 
 
 def test_not_ready_shows_the_servers_reason():
-    body = {"error": {"code": "service_unavailable", "message": "No Gemini API key found."}}
+    body = {"error": {"code": "service_unavailable", "message": "Ollama is unavailable."}}
     e = problem_of(lambda: client((503, {}, body))[0].chat("x"))
-    assert e.kind == "not_ready" and "No Gemini API key found." in e.detail
+    assert e.kind == "not_ready" and "Ollama is unavailable." in e.detail
 
 
 def test_bad_input_and_unexpected_errors():

@@ -7,7 +7,7 @@ Try:  which products sell together?  ->  only on Sundays  ->  now by money  ->  
 Type  /spec  to see the current request,  /undo  and  /reset  to go back or start over without asking
 the model,  and an empty line to quit.
 
-Needs your Gemini key in .env and the cleaned data (python -m src.prepare_data).
+Needs the configured live model (Ollama by default) and the cleaned data (python -m src.prepare_data).
 Money-based questions also need Java and tools/spmf.jar when mining.
 """
 import json
@@ -16,7 +16,7 @@ import textwrap
 
 from src.core.errors import LLMUnavailable, MiningError
 from src.demo_engine import print_result
-from src.llm.client import GeminiClient
+from src.llm.client import create_llm_client
 from src.llm.conversation import converse, reset_session, undo_session
 from src.llm.explainer import explain_result
 from src.llm.session import Session
@@ -63,7 +63,7 @@ def show_turn(t, llm, explain, question):
 if __name__ == "__main__":
     explain = "--explain" in sys.argv
     try:
-        llm = GeminiClient()
+        llm = create_llm_client()
     except LLMUnavailable as e:
         sys.exit(str(e))
     session = Session()

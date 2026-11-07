@@ -4,9 +4,9 @@
     then open  http://127.0.0.1:8000/docs  for an interactive page where you can try every endpoint.
 
 Every response that is not a normal result has the same shape:  {"error": {"code": ..., "message": ...}}.
-The API keeps working when something is missing (no Gemini key, data not prepared, no Java): it starts,
+The API keeps working when something is missing (Ollama unavailable, data not prepared, no Java): it starts,
 /health says what is wrong, and only the endpoints that need it answer 503 with the reason.
-The Gemini key lives on the server only and is never returned.
+Provider credentials, when used, stay on the server and are never returned.
 """
 import logging
 import os
@@ -25,7 +25,7 @@ from src.core.errors import LLMUnavailable
 from src.core.pipeline import Pipeline
 from src.core.presets import KIND_DESCRIPTIONS, PRESETS
 from src.core.sessions import RateLimiter, SessionStore
-from src.llm.client import GeminiClient
+from src.llm.client import create_llm_client
 from src.llm.replay import ReplayLLM
 
 log = logging.getLogger("api")
@@ -62,7 +62,7 @@ def create_app(llm=None, df=None, store: SessionStore | None = None, limiter: Ra
             from dotenv import load_dotenv
             load_dotenv(C.ROOT / ".env")
             replay_enabled = os.getenv("DEMO_REPLAY", "").strip().lower() in {"1", "true", "yes", "on"}
-            llm = ReplayLLM() if replay_enabled else GeminiClient()
+            llm = ReplayLLM() if replay_enabled else create_llm_client()
         except LLMUnavailable as e:
             llm_error = str(e)
     replay_mode = isinstance(llm, ReplayLLM)

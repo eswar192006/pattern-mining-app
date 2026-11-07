@@ -104,7 +104,7 @@ def render_header() -> None:
                 "<p>Ask in plain English. A language model understands and explains; exact algorithms do all the counting.</p></div>",
                 unsafe_allow_html=True)
     if (st.session_state.health or {}).get("demo_mode") == "replay":
-        st.info("Replay demo is active. Saved responses interpret the six walkthrough questions; all results are mined from the local data. No Gemini requests are sent.")
+        st.info("Replay demo is active. Saved responses interpret the six walkthrough questions; all results are mined from the local data. No live model requests are sent.")
     pills = view.readiness_pills(st.session_state.health)
     st.markdown("".join(pill(p["label"], p["state"], p["detail"]) for p in pills), unsafe_allow_html=True)
 

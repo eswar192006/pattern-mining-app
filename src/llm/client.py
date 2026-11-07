@@ -1,11 +1,11 @@
-"""Talking to the language model.
+"""Providers for the shared language-model interface.
 
 LLMClient is a tiny interface: generate_json(system, user, schema) -> text.
-  * GeminiClient  - Google Gemini through the official `google-genai` SDK, using the
-                    Interactions API that Google recommends for new development.
+  * OllamaClient  - a local model through Ollama's HTTP API.
+  * GeminiClient  - optional Google Gemini compatibility.
   * FakeLLM       - scripted answers for tests (src/llm/fake.py), no network, no key.
 
-Everything about Google lives in THIS file, so a change in their API touches one place.
+Provider-specific behavior stays here; parsing, mining, and UI use the shared interface.
 
 Safety and privacy:
   * the key is read from the environment / .env and never logged or put in messages
@@ -13,6 +13,9 @@ Safety and privacy:
   * every failure becomes LLMUnavailable with a message that is safe to show a user
 """
 import os
+import json
+from urllib.error import HTTPError, URLError
+from urllib.request import Request, urlopen
 
 from src.core import config as C
 from src.core.errors import LLMUnavailable
@@ -27,6 +30,81 @@ _PROFILES = [
     {"schema": True, "gen": None},
     {"schema": False, "gen": None},
 ]
+
+
+class OllamaClient:
+    """Local Ollama client implementing generate_json/generate_text."""
+
+    def __init__(self, model=None, base_url=None, timeout_s=None):
+        try:
+            from dotenv import load_dotenv
+            load_dotenv(C.ROOT / ".env")
+        except ImportError:
+            pass
+        self.model = model or os.getenv("OLLAMA_MODEL", "qwen3.5:4b")
+        self.base_url = (base_url or os.getenv("OLLAMA_BASE_URL", "http://127.0.0.1:11434")).rstrip("/")
+        self.timeout_s = timeout_s or float(os.getenv("LLM_TIMEOUT_S", C.LLM_TIMEOUT_S))
+        self._check_model()
+
+    def _check_model(self):
+        req = Request(self.base_url + "/api/tags")
+        try:
+            with urlopen(req, timeout=min(self.timeout_s, 4)) as response:
+                models = json.loads(response.read().decode("utf-8")).get("models", [])
+            names = {m.get("name") for m in models}
+            if self.model not in names and f"{self.model}:latest" not in names:
+                raise LLMUnavailable(f"Ollama is running, but model '{self.model}' is not installed. Run: ollama pull {self.model}")
+        except LLMUnavailable:
+            raise
+        except (HTTPError, URLError, TimeoutError, OSError, json.JSONDecodeError, UnicodeDecodeError):
+            raise LLMUnavailable(f"Could not reach Ollama at {self.base_url}. Start the Ollama app and run: ollama pull {self.model}") from None
+
+    def generate_json(self, system: str, user: str, schema: dict | None = None) -> str:
+        return self._call(system, user, schema or "json")
+
+    def generate_text(self, system: str, user: str) -> str:
+        return self._call(system, user)
+
+    def _call(self, system, user, fmt=None):
+        body = {"model": self.model,
+                "messages": ([{"role": "system", "content": system}] if system else [])
+                            + [{"role": "user", "content": user}],
+                "stream": False, "think": False,
+                "options": {"temperature": 0}}
+        if fmt is not None:
+            body["format"] = fmt
+        req = Request(self.base_url + "/api/chat", data=json.dumps(body).encode(),
+                      headers={"Content-Type": "application/json"}, method="POST")
+        try:
+            with urlopen(req, timeout=self.timeout_s) as response:
+                payload = json.loads(response.read().decode("utf-8"))
+            return (payload.get("message") or {}).get("content", "")
+        except HTTPError as exc:
+            detail = exc.read().decode("utf-8", errors="replace")[:240]
+            raise LLMUnavailable(f"Ollama request failed ({exc.code}): {detail}. Check that '{self.model}' is installed.") from None
+        except (URLError, TimeoutError, OSError) as exc:
+            if isinstance(exc, TimeoutError) or getattr(exc, "reason", None).__class__ is TimeoutError:
+                msg = f"Ollama did not respond within {self.timeout_s:g} seconds."
+            else:
+                msg = f"Could not reach Ollama at {self.base_url}. Start the Ollama app and make sure '{self.model}' is installed."
+            raise LLMUnavailable(msg) from None
+        except (json.JSONDecodeError, UnicodeDecodeError, AttributeError):
+            raise LLMUnavailable("Ollama returned an invalid response. Check the Ollama service and model.") from None
+
+
+def create_llm_client(provider=None):
+    """Create the configured live provider; Ollama is the local default."""
+    try:
+        from dotenv import load_dotenv
+        load_dotenv(C.ROOT / ".env")
+    except ImportError:
+        pass
+    provider = (provider or os.getenv("LLM_PROVIDER", "ollama")).strip().lower()
+    if provider == "ollama":
+        return OllamaClient()
+    if provider == "gemini":
+        return GeminiClient()
+    raise LLMUnavailable(f"Unknown LLM_PROVIDER '{provider}'. Choose 'ollama' or 'gemini'.")
 
 
 def _status(e):

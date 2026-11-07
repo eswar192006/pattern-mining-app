@@ -2,7 +2,7 @@
 
     body = Pipeline(llm, df).chat(session, "which products sell together on Sundays?")
 
-    converse (Gemini: sentence -> edit)  ->  validate  ->  mine (exact)  ->  explain (Gemini, verified)
+    converse (model: sentence -> edit)  ->  validate  ->  mine (exact)  ->  explain (model, verified)
 
 Everything the API returns comes from here, in ONE stable JSON shape, so the interface never has to
 guess. Domain outcomes (a question to answer, a request that is too heavy, an off-topic message) are

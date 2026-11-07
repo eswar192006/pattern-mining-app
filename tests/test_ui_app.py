@@ -94,9 +94,9 @@ def test_server_down_screen_explains_and_offers_a_retry():
 
 
 def test_missing_key_screen_names_the_fix():
-    health = dict(HEALTH_OK, llm={"ready": False, "model": None, "error": "No Gemini API key found."})
+    health = dict(HEALTH_OK, llm={"ready": False, "model": None, "error": "Ollama is unavailable."})
     at = start(FakeApi(health=health))
-    assert any("language model is not set up" in str(e.value) and "No Gemini API key found." in str(e.value) for e in at.error)
+    assert any("language model is not set up" in str(e.value) and "Ollama is unavailable." in str(e.value) for e in at.error)
     assert len(at.chat_input) == 0
 
 

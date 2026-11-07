@@ -44,7 +44,7 @@ def readiness_pills(health: dict | None) -> list[dict]:
     pills = [{"label": "Data", "state": "ok" if data.get("ready") else "bad",
               "detail": f"{data['baskets']:,} orders" if data.get("ready") and data.get("baskets") else (data.get("error") or "not prepared")}]
     pills.append({"label": "Model", "state": "ok" if llm.get("ready") else "bad",
-                  "detail": llm.get("model") or "no API key"})
+                  "detail": llm.get("model") or "not configured"})
     java_ok = bool(mining.get("high_utility_available"))
     pills.append({"label": "Java", "state": "ok" if java_ok else "warn",
                   "detail": "money questions ready" if java_ok else "money questions unavailable"})
@@ -62,7 +62,7 @@ def blocking_problem(health: dict | None) -> tuple[str, str] | None:
                 + "  Put the dataset in data/raw/ and run:  python -m src.prepare_data")
     if not llm.get("ready"):
         return ("The language model is not set up",
-                (llm.get("error") or "No Gemini API key was found.")
+                (llm.get("error") or "The configured language model is unavailable.")
                 + "  Then restart the server.")
     return None
 
