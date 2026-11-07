@@ -56,7 +56,8 @@ class OllamaClient:
                 raise LLMUnavailable(f"Ollama is running, but model '{self.model}' is not installed. Run: ollama pull {self.model}")
         except LLMUnavailable:
             raise
-        except (HTTPError, URLError, TimeoutError, OSError, json.JSONDecodeError, UnicodeDecodeError):
+        except (HTTPError, URLError, TimeoutError, OSError, ValueError, TypeError, AttributeError,
+                json.JSONDecodeError, UnicodeDecodeError):
             raise LLMUnavailable(f"Could not reach Ollama at {self.base_url}. Start the Ollama app and run: ollama pull {self.model}") from None
 
     def generate_json(self, system: str, user: str, schema: dict | None = None) -> str:
@@ -82,7 +83,7 @@ class OllamaClient:
         except HTTPError as exc:
             detail = exc.read().decode("utf-8", errors="replace")[:240]
             raise LLMUnavailable(f"Ollama request failed ({exc.code}): {detail}. Check that '{self.model}' is installed.") from None
-        except (URLError, TimeoutError, OSError) as exc:
+        except (URLError, TimeoutError, OSError, ValueError) as exc:
             if isinstance(exc, TimeoutError) or getattr(exc, "reason", None).__class__ is TimeoutError:
                 msg = f"Ollama did not respond within {self.timeout_s:g} seconds."
             else:

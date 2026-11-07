@@ -185,22 +185,24 @@ def selection_size(df: pd.DataFrame, filters) -> dict:
 
 def _empty_hint(req, kind, df, baskets, res, found_before_include, include):
     """Say what to try when nothing was found."""
+    if kind == "rare" and len(include) == 2:
+        inc = ", ".join(include)
+        needed = set(include)
+        mined = [set(b) for b in baskets if len(set(b)) >= 2]
+        pair_count = sum(needed <= basket for basket in mined)
+        item_counts = [sum(item in basket for basket in mined) for item in include]
+        strength = pair_count / max(item_counts) if pair_count and max(item_counts) else 0.0
+        support = pair_count / res.n_baskets if res.n_baskets else 0.0
+        if (pair_count >= req.min_count and support <= req.max_support
+                and strength < req.min_strength):
+            retry_strength = max(0.01, int(strength * 100) / 100)
+            return (f"{inc} appear together in {pair_count:,} baskets ({support:.2%} of orders), but their "
+                    f"link strength is {strength:.1%}, below your {req.min_strength:.0%} cutoff. "
+                    f"Try setting minimum strength to {retry_strength:.0%} to include this pair.")
+
     if found_before_include and include:
         inc = ", ".join(include)
         have = hints.baskets_containing(df, include)
-        if kind == "rare" and len(include) == 2:
-            needed = set(include)
-            mined = [set(b) for b in baskets if len(set(b)) >= 2]
-            pair_count = sum(needed <= basket for basket in mined)
-            item_counts = [sum(item in basket for basket in mined) for item in include]
-            strength = pair_count / max(item_counts) if pair_count and max(item_counts) else 0.0
-            support = pair_count / res.n_baskets if res.n_baskets else 0.0
-            if (pair_count >= req.min_count and support <= req.max_support
-                    and strength < req.min_strength):
-                retry_strength = max(0.01, int(strength * 100) / 100)
-                return (f"{inc} appear together in {pair_count:,} baskets ({support:.2%} of orders), but their "
-                        f"link strength is {strength:.1%}, below your {req.min_strength:.0%} cutoff. "
-                        f"Try setting minimum strength to {retry_strength:.0%} to include this pair.")
         return (f"{found_before_include:,} combinations met the threshold, but none contain {inc} "
                 f"(which appears together in {have:,} baskets). Lower the threshold or drop the include filter.")
     if include:

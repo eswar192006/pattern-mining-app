@@ -147,6 +147,14 @@ def test_rare_empty_result_hint():
     assert r.total_found == 0 and "strongest rare pair" in r.hint
 
 
+def test_rare_include_pair_hint_reports_its_strength_and_retry_threshold():
+    r = run_mining({"kind": "rare", "max_support": 0.5, "min_count": 2, "min_strength": 0.9,
+                    "filters": {"include_items": [TEA, CUP]}}, df=DF)
+    assert r.total_found == 0
+    assert "TEA, CUP appear together in 6 baskets" in r.hint
+    assert "link strength is 50.0%" in r.hint and "minimum strength to 50%" in r.hint
+
+
 @needs_spmf
 def test_high_utility_empty_result_hint():
     r = run_mining({"kind": "high_utility", "min_utility": 100}, df=DF)

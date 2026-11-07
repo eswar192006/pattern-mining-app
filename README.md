@@ -371,7 +371,7 @@ language layer (Step 8) should not need to know about those differences.
   RED RETROSPOT) appears in 4.45% of the 18,141 baskets; try min_support 4.45% or lower."*
 - `src/demo_engine.py` lets you try it with a JSON request, for example:
   `python -m src.demo_engine '{"kind":"frequent","min_support":0.01,"filters":{"weekdays":["Sunday"]}}'`
-- `tests/test_engine.py` (22 tests): a small hand-counted dataset for all three kinds and every filter,
+- `tests/test_engine.py` (23 tests): a small hand-counted dataset for all three kinds and every filter,
   checks of the error types and hints, and **real-data checks** that the engine returns exactly what the
   miners return when called directly (1,601 frequent, 2,051 rare and 1,615 high-utility itemsets).
 
@@ -450,18 +450,19 @@ sense and either produces an exact, safe request for the engine or says what has
 5. **Catches contradictions:** a product both included and excluded, two thresholds for the same thing,
    more required products than the size limit allows, or an algorithm that does not fit the kind.
 
-### Step 8: LLM parser (English to spec), using Google Gemini
+### Step 8: LLM parser (English to spec), Ollama by default
 
 **Goal:** the language front end. A sentence such as "which products do people buy together on Sundays?"
 becomes a spec, which the Step 7 validator checks, and then the engine can run it.
 
-**Status, stated honestly:** everything in this step is tested offline, with a fake Google server and a fake
-model. It has **not yet been run with a real Gemini key**: that is your job, and it takes two commands (see
-"What you need to do" below).
+**Status, stated honestly:** the provider adapters and parser are covered by offline tests. The Ollama adapter
+has mocked protocol tests; its live readiness check could not connect to Ollama in the last local check. Run
+`python -m src.check_ollama` after starting Ollama to verify both structured JSON and plain-text responses.
 
 **What we did:**
-- `src/llm/client.py` provides `GeminiClient`, the only file that talks to Google. It uses Google's
-  **Interactions API**, which the current Gemini documentation recommends for new development (the older
+- `src/llm/client.py` provides `OllamaClient` (the default local provider) and optional `GeminiClient`. Ollama
+  uses its local `/api/chat` endpoint with structured JSON output; choose its model with `OLLAMA_MODEL` and its
+  address with `OLLAMA_BASE_URL`. The Gemini adapter uses Google's **Interactions API** (the older
   `generateContent` call is still supported, but is no longer the recommended route). Details:
   - the key is read from `GEMINI_API_KEY` in `.env` and is never logged or shown in any message;
   - the request asks for JSON that follows our schema, with `store=False` so Google does not keep the
@@ -477,7 +478,7 @@ model. It has **not yet been run with a real Gemini key**: that is your job, and
   strictness words, how to use filters, a rule never to invent thresholds or product names, and 13 worked
   examples. The question is passed as data ("Question: ..."), and the prompt says it is never an instruction.
 - `src/llm/reply.py` defines what the model must return (`intent`, `spec`, `message`) and a simplified JSON
-  schema for Gemini (no `$ref`, no numeric bounds; pydantic enforces those afterwards, so nothing is lost).
+  schema (no `$ref`, no numeric bounds; pydantic enforces those afterwards, so nothing is lost).
 - `src/llm/parser.py` provides `parse_question(question, llm)`:
   1. the model's answer is read tolerantly (markdown fences, extra text and `null` values are accepted);
   2. it is checked by pydantic and then by `validate_spec`;
@@ -489,11 +490,13 @@ model. It has **not yet been run with a real Gemini key**: that is your job, and
      Step 13). Logging can never break an answer.
   The result is one of `ok`, `needs_clarification`, `invalid`, `out_of_scope`, `failed` or `llm_unavailable`.
 - `src/llm/fake.py` is a scripted stand-in for the model, used by the tests.
-- `src/check_gemini.py` is a one-command connection check; `src/demo_parse.py` is an interactive demo.
-- Tests: `test_llm_client.py` (13 at this step), `test_llm_parser.py` (34) and an optional `test_llm_live.py` (7, skipped
-  unless you switch it on).
+- `src/check_ollama.py` checks model availability plus JSON and text responses; `src/check_gemini.py` checks
+  the optional Gemini provider. `src/demo_parse.py` uses whichever provider is configured.
+- Tests: `test_ollama_client.py` covers the local HTTP adapter, `test_llm_client.py` covers the optional Gemini
+  adapter, `test_llm_parser.py` covers parsing and correction, and `test_llm_live.py` has 7 optional live Gemini
+  checks (skipped unless enabled).
 
-**How it was tested without a key.** The real Google SDK was pointed at a small **fake Google server** run on
+**How the optional Gemini adapter is tested.** The real Google SDK is pointed at a small **fake Google server** run on
 the same machine. This checks the exact request we send (path, key header, `store=false`, system instruction,
 schema, model) against Google's documentation, and every failure path. It also found a real bug: the Interactions
 API reports errors as `status_code` and not `code`, so a wrong key would have been shown as a "network problem".
@@ -501,21 +504,23 @@ That is fixed and covered by tests. The suite also checks that each of the promp
 status it promises on the real data, and that the whole chain works from a sentence to mining results.
 
 **What you need to do (once):**
-1. Get a key at https://aistudio.google.com/apikey, then copy `.env.example` to `.env` and write the key in it.
-   Do not paste the key anywhere else.
-2. `python -m src.check_gemini` sends one small question and tells you if the key, the model name and the
-   request format all work. If the model name is rejected it says how to change it.
-3. Try it: `python -m src.demo_parse "Which products sell together on Sundays?"` (add `--run` to also mine).
-4. For the written answer too: add `--explain` to the command above (it makes one more model call).
-5. Optional regression check on the real model: `RUN_LIVE_LLM=1 python -m pytest tests/test_llm_live.py -q -s`.
+1. Start the Ollama app. If needed, download the default model with `ollama pull qwen3.5:4b`.
+2. Run `.venv/bin/python -m src.check_ollama`; it checks the selected model and makes one structured and one
+   plain-text request.
+3. For the app, run `./start_demo.sh --live`. For the command-line parser, try
+   `.venv/bin/python -m src.demo_parse "Which products sell together on Sundays?" --explain`.
+4. Optional Gemini mode: set `LLM_PROVIDER=gemini` and `GEMINI_API_KEY` in `.env`, then run
+   `.venv/bin/python -m src.check_gemini`.
+5. Optional live Gemini regression check: `RUN_LIVE_LLM=1 .venv/bin/python -m pytest tests/test_llm_live.py -q -s`.
 
 ### Step 9: Explanation layer
 
 **Goal:** turn the engine's tables into a short answer a store manager can read, without letting the language
 model invent a single number or product.
 
-**Status, stated honestly:** like Step 8, this is tested offline (fake model, fake Google server). The plain-text
-call it needs has not yet been run against a real key; `python -m src.check_gemini` now checks it for you.
+**Status, stated honestly:** the explanation path is covered offline with fake models. The Ollama readiness
+command checks its plain-text endpoint too; a live Ollama response still needs to be checked on a machine where
+the Ollama service is running.
 
 **What we did:**
 - `src/llm/explainer.py` provides `explain_result(result, llm, question)` and returns the answer, whether the
@@ -613,7 +618,7 @@ real Google SDK against the fake server. They found a real bug: the log was losi
 collision), which would have emptied the data Step 13 needs. It is fixed and tested.
 
 **What you need to do:**
-1. After `check_gemini` works, try a conversation: `python -m src.demo_chat --explain`, then type for example
+1. After `check_ollama` works, try a conversation: `.venv/bin/python -m src.demo_chat --explain`, then type for example
    "which products sell together?", "only on Sundays", "now by money", "stricter", "undo".
 2. Watch the `changed:` lines. They show exactly what the model changed. If it changes something it should not, or
    misses a change, send me the message and what happened, and I will adjust the prompt examples.
@@ -625,9 +630,8 @@ something said three turns ago ("like before") will not work. The request carrie
 
 **Goal:** put the whole pipeline behind one interface that a web page can call.
 
-**Status, stated honestly:** the API is tested in two ways: with a simulated client (39 tests) and by starting the
-real server and calling it with `curl` over an actual network connection, with your real data and a stand-in model.
-Only the live Gemini calls are still unproven (they need your key).
+**Status, stated honestly:** the API is tested with simulated clients and real local HTTP requests. A live Ollama
+response still needs to be checked with `python -m src.check_ollama` on a machine where Ollama is running.
 
 **Start it:**
 ```bash
@@ -644,7 +648,7 @@ Then open **http://127.0.0.1:8000/docs**: an automatic, interactive page where y
   with a `status` or an `error` field, not exceptions.
 - `src/core/sessions.py` keeps conversations in memory, bounded: an idle conversation expires after 2 hours, the
   least recently used one is dropped beyond 200, and ids are long random strings. It also holds a **rate limiter**
-  (20 model-using requests per minute per client) that protects your Gemini quota.
+  (20 model-using requests per minute per client) to keep model traffic controlled.
 - `api/main.py` provides the endpoints:
 
   | Endpoint | What it does |
@@ -665,7 +669,7 @@ Then open **http://127.0.0.1:8000/docs**: an automatic, interactive page where y
   ```
 
 **Designed to fail clearly, not crash:**
-- The server **starts even when something is missing** (no Gemini key, data not prepared, no Java). `/health` says
+- The server **starts even when something is missing** (Ollama unavailable, data not prepared, no Java). `/health` says
   exactly what is wrong, and only the endpoints that need it answer **503** with the reason.
 - Every non-result response has the same shape: `{"error": {"code": ..., "message": ...}}`. This covers bad input
   (422), unknown or expired conversations (404), rate limiting (429, with a `Retry-After` header), a busy server (503)
@@ -675,7 +679,7 @@ Then open **http://127.0.0.1:8000/docs**: an automatic, interactive page where y
   it fails if the lock is removed.
 - **At most 2 mining jobs run at once.** If the server is busy, the message is still applied and the response says
   `server_busy`, and `POST /sessions/{id}/run` mines the same request again once there is room.
-- The Gemini key stays on the server and is **never returned**, even in error messages (tests check responses,
+- Optional Gemini credentials stay on the server and are **never returned**, even in error messages (tests check responses,
   headers, `/health` and `/catalog`). CORS allows only the interface's address (set `CORS_ORIGINS` to change it).
 - A model failure never damages the conversation: the request the user already had is kept.
 
@@ -729,10 +733,10 @@ Streamlit's test mode and a scripted stand-in for the API. The last two skip the
 | 5 | High-utility mining (FHM+ and EFIM via SPMF) | Done |
 | 6 | Unified mining engine: one `run_mining(request)` | Done |
 | 7 | Spec schema and validation | Done |
-| 8 | LLM parser (English to spec, Gemini) | Done (tested offline; run `check_gemini` with your key) |
-| 9 | Explanation layer (results to plain English) | Done (tested offline; run `check_gemini` with your key) |
-| 10 | Conversation memory (follow-up questions) | Done (tested offline; try `demo_chat` with your key) |
-| 11 | Backend API (FastAPI) | Done (tested with curl over real HTTP; Gemini calls need your key) |
+| 8 | LLM parser (English to spec, Ollama default; Gemini optional) | Done (offline tests; run `check_ollama` for a live check) |
+| 9 | Explanation layer (results to plain English) | Done (offline tests; `check_ollama` checks text generation) |
+| 10 | Conversation memory (follow-up questions) | Done (tested offline; try `demo_chat` with Ollama) |
+| 11 | Backend API (FastAPI) | Done (tested with curl over real HTTP; live Ollama check remains local setup) |
 | 12 | User interface (chat-style web page) | Built; presenter screenshots pending |
 | 13 | Evaluation (accuracy and timing for the report) | Partial; stopwatch study and benchmarks done, model evaluation incomplete |
 | 14 | Packaging and demo | Local launcher, pinned dependencies and replay mode ready; presenter screenshots and backup video pending |
@@ -775,7 +779,7 @@ pattern-mining-app/
 │   │   ├── hints.py            Quick look-ups that explain an empty result ("the best pair reaches 4.45%")
 │   │   └── engine.py           run_mining(request): the single entry point for all three kinds of mining
 │   ├── llm/                THE TRANSLATOR: the language layer
-│   │   ├── client.py           GeminiClient: the only file that talks to Google (key, retries, safe errors)
+│   │   ├── client.py           Ollama default and optional Gemini provider adapters
 │   │   ├── prompts.py          The prompt and its 13 worked examples
 │   │   ├── replay.py           Six saved local responses for a keyless presentation demo
 │   │   ├── reply.py            What the model must return, and the simplified schema it is shown
@@ -803,9 +807,10 @@ pattern-mining-app/
 │   ├── test_rare.py            11 tests for the rare miner (incl. brute-force check)
 │   ├── test_rare_vs_frequent_real.py   1 real-data cross-check (about 20 s)
 │   ├── test_huim.py            12 tests for the high-utility miner (7 need Java and tools/spmf.jar)
-│   ├── test_engine.py          22 tests for the engine (3 need Java and tools/spmf.jar)
+│   ├── test_engine.py          23 tests for the engine (3 need Java and tools/spmf.jar)
 │   ├── test_validation.py      25 tests for the catalogue and validator
-│   ├── test_llm_client.py      18 tests: the Gemini client against a fake Google server
+│   ├── test_llm_client.py      18 tests: optional Gemini client against a fake Google server
+│   ├── test_ollama_client.py    4 tests for the local Ollama client protocol and provider setup
 │   ├── test_llm_parser.py      35 tests: parsing, self-correction, logging, prompt and examples
 │   ├── conftest.py             Shared setup: tests never write to your real logs/ folder
 │   ├── test_numbercheck.py     65 tests: honest rounding passes, invented figures and products are caught
@@ -949,19 +954,17 @@ This example uses a minimum sales revenue of 10,000, pairs, and displays up to 1
 
 The second example demonstrates clarification when a product name is ambiguous.
 
-### Steps 8–9: Gemini translation and the complete question-to-answer chain
+### Steps 8–9: model translation and the complete question-to-answer chain
 
-For live Gemini mode, create and edit the ignored `.env` file. Keep the key private:
+For live Ollama mode, start the Ollama app and check/install the default model:
 
 ```bash
-cp .env.example .env
-nano .env
-.venv/bin/python -m src.check_gemini
-.venv/bin/python -m src.demo_parse "Which products sell together on Sundays?" --run
-.venv/bin/python -m src.demo_parse "Which products sell together on Sundays?" --explain
+ollama pull qwen3.5:4b
+.venv/bin/python -m src.check_ollama
+./start_demo.sh --live
 ```
 
-The first `demo_parse` command shows the interpreted request and mined results. `--explain` also produces a verified plain-English answer. These commands use Gemini quota; the local replay demo in Step 14 does not.
+Or run `.venv/bin/python -m src.demo_parse "Which products sell together on Sundays?" --explain` for a direct command-line example. To use Gemini instead, configure `LLM_PROVIDER=gemini` and `GEMINI_API_KEY` in `.env`, then run `src.check_gemini`.
 
 ### Step 10: multi-turn conversation
 
@@ -989,7 +992,9 @@ Then open <http://127.0.0.1:8501>. Stop each service with Ctrl+C in its terminal
 
 ### Step 13: evaluation
 
-The model phases call Gemini and may use quota. The runner caches successful model calls. Run the phases individually to see progress:
+The Step 13 evaluation runner currently calls Gemini directly (it does not follow `LLM_PROVIDER`) and may use
+Gemini quota. This preserves the original Gemini baseline, but it does not measure the current Ollama-backed app.
+The runner caches successful model calls. Run the phases individually to see progress:
 
 ```bash
 .venv/bin/python -m evaluation.run --phase templates
