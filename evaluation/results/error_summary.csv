@@ -1,0 +1,8 @@
+﻿log_file,type,category,count
+evaluation_llm_understanding.jsonl,turn,llm_unavailable,11
+evaluation_llm_understanding.jsonl,turn,ok,4
+llm_requests.jsonl,explanation,number_check_or_answer,1
+llm_requests.jsonl,explanation,ok,10
+llm_requests.jsonl,parse,ok,2
+llm_requests.jsonl,turn,ok,12
+llm_requests.jsonl,turn,self_correction,1

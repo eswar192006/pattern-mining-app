@@ -1,0 +1,7 @@
+{
+  "cases": 50,
+  "expected_steps": 60,
+  "evaluated_steps": 4,
+  "complete": false,
+  "stopped_reason": "Stopped during F05 after Gemini returned HTTP 429 Too Many Requests; remaining cases were not run."
+}

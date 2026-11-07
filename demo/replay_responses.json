@@ -1,0 +1,34 @@
+[
+  {
+    "question": "Which products are usually bought together?",
+    "spec": {"kind": "frequent"},
+    "answer": "These are the combinations that appear most often together in the selected transactions. Consider testing the leading pairs as cross-sell bundles and tracking their basket frequency."
+  },
+  {
+    "question": "Which products sell together on Sundays?",
+    "spec": {"kind": "frequent", "filters": {"weekdays": ["Sunday"]}},
+    "answer": "These combinations appear together in Sunday orders. Consider comparing them with the all-day results before choosing a targeted weekend promotion."
+  },
+  {
+    "question": "Find rare but closely linked pairs in Germany.",
+    "spec": {"kind": "rare", "filters": {"countries": ["Germany"]}},
+    "clarification_reply": "Lower the minimum count to 2 or less",
+    "clarification_spec": {"min_count": 2},
+    "answer": "These pairs are uncommon in the selected German orders but strongly linked when they occur. They may suit a focused niche offer or a closer merchandising review."
+  },
+  {
+    "question": "Top 5 pairs that earn over 20000.",
+    "spec": {"kind": "high_utility", "min_utility": 20000, "max_len": 2, "top_k": 5},
+    "answer": "These pairs have high combined sales revenue under the selected threshold. Consider testing them as coordinated offers; revenue here is not profit."
+  },
+  {
+    "question": "Find common bundles in December and January.",
+    "spec": {"kind": "frequent", "filters": {"months": [1, 12]}},
+    "answer": "These common combinations are drawn from December and January orders. They can help shape seasonal cross-sell ideas for those months."
+  },
+  {
+    "question": "What sells together with the Regency Cakestand 3 Tier?",
+    "spec": {"kind": "frequent", "filters": {"include_products": ["REGENCY CAKESTAND 3 TIER"]}},
+    "answer": "These combinations all include the requested cakestand in the selected transactions. Consider testing the leading items as companion products."
+  }
+]

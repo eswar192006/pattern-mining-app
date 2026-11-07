@@ -1,0 +1,2 @@
+﻿change_id,date,error_pattern_from_log,prompt_change,matched_case_ids,before_cases,before_correct,after_cases,after_correct,notes
+P01,2026-11-07,"The model returned top_k=0 for a question with no requested result count; self-correction returned top_k=1, still an unrequested field.",Clarify in the prompt that top_k is omitted unless requested and must be a positive integer (never zero).,F01,1,0,1,1,Before value is from the historical log. After measurement awaits a successful Gemini rerun.

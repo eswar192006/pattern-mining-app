@@ -1,0 +1,11 @@
+# Look and feel of the page (read when you run `streamlit run ui/app.py` from the project folder).
+[theme]
+base = "dark"
+primaryColor = "#7c5cff"
+backgroundColor = "#0b0d1c"
+secondaryBackgroundColor = "#151831"
+textColor = "#e6eaff"
+font = "sans serif"
+
+[browser]
+gatherUsageStats = false

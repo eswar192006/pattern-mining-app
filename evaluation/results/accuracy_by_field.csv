@@ -1,0 +1,6 @@
+﻿source,field,correct,total,accuracy_pct
+request_accuracy,filters.include_items,0,1,0.0
+request_accuracy,filters.weekdays,0,1,0.0
+request_accuracy,kind,4,4,100.0
+request_accuracy,min_support,1,1,100.0
+request_accuracy,top_k,0,2,0.0

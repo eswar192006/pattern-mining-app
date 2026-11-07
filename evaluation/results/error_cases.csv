@@ -1,0 +1,14 @@
+﻿log_file,line,type,status,category,question,problems,model,prompt_version
+llm_requests.jsonl,7,turn,ok,self_correction,Which products are usually bought together?,"[""The JSON did not match the required format: spec.top_k: Input should be greater than or equal to 1.""]",gemini-3.6-flash,legacy/unversioned
+llm_requests.jsonl,16,explanation,unknown,number_check_or_answer,Which products are usually bought together?,"[""product names that are not in the data: 'JUMBO BAG RED RETROSPOT. T'"",""product names that are not in the data: 'JUMBO BAG RED RETROSPOT. JUMBO BAG PINK POLKADOT'""]",,legacy/unversioned
+evaluation_llm_understanding.jsonl,1,turn,llm_unavailable,llm_unavailable,Which products are usually bought together?,[],gemini-3.6-flash,legacy/unversioned
+evaluation_llm_understanding.jsonl,2,turn,llm_unavailable,llm_unavailable,Any unusual pairs that rarely sell but always go together?,[],gemini-3.6-flash,legacy/unversioned
+evaluation_llm_understanding.jsonl,3,turn,llm_unavailable,llm_unavailable,Which combinations earn the most money?,[],gemini-3.6-flash,legacy/unversioned
+evaluation_llm_understanding.jsonl,4,turn,llm_unavailable,llm_unavailable,Tell me something interesting about my sales,[],gemini-3.6-flash,legacy/unversioned
+evaluation_llm_understanding.jsonl,5,turn,llm_unavailable,llm_unavailable,Which lunch bags go together?,[],gemini-3.6-flash,legacy/unversioned
+evaluation_llm_understanding.jsonl,6,turn,llm_unavailable,llm_unavailable,Which products are usually bought together?,[],gemini-3.6-flash,legacy/unversioned
+evaluation_llm_understanding.jsonl,7,turn,llm_unavailable,llm_unavailable,Only on Sundays,[],gemini-3.6-flash,legacy/unversioned
+evaluation_llm_understanding.jsonl,8,turn,llm_unavailable,llm_unavailable,Tell me something interesting about my sales,[],gemini-3.6-flash,legacy/unversioned
+evaluation_llm_understanding.jsonl,9,turn,llm_unavailable,llm_unavailable,The unusual but tightly linked pairs,[],gemini-3.6-flash,legacy/unversioned
+evaluation_llm_understanding.jsonl,10,turn,llm_unavailable,llm_unavailable,What is the weather in Paris today?,[],gemini-3.6-flash,legacy/unversioned
+evaluation_llm_understanding.jsonl,11,turn,llm_unavailable,llm_unavailable,Which products are usually bought together?,[],gemini-3.6-flash,top-k-positive-v1

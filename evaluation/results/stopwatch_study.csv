@@ -1,0 +1,11 @@
+﻿participant,case_id,question,method,time_minutes,request_correct,results_correct,notes
+self,F02,What do customers buy together on Sundays?,manual_tuning,0.0405,,,User-measured duration: 2.43 seconds.
+self,F02,What do customers buy together on Sundays?,app,0.0833,,,User-measured app response time: 5 seconds.
+self,R03,Find rare but closely linked pairs in Germany,manual_tuning,0.0230,,,User-measured duration: 1.38 seconds.
+self,R03,Find rare but closely linked pairs in Germany,app,0.2333,,,User-measured app response time: 14 seconds.
+self,H04,Top 5 pairs that earn over 20000,manual_tuning,0.0655,,,User-measured duration: 3.93 seconds.
+self,H04,Top 5 pairs that earn over 20000,app,0.6667,,,User-measured app response time: 40 seconds.
+self,F09,Find common bundles in December and January,manual_tuning,0.0298,,,User-measured duration: 1.79 seconds.
+self,F09,Find common bundles in December and January,app,0.1167,,,User-measured app response time: 7 seconds.
+self,H02,"Biggest earners in December, but leave out anything with bunting",manual_tuning,0.0395,,,User-measured duration: 2.37 seconds.
+self,H02,"Biggest earners in December, but leave out anything with bunting",app,0.2833,,,User-measured app response time: 17 seconds.
