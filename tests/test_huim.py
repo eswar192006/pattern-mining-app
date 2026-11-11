@@ -9,10 +9,10 @@ import scipy.sparse as sp
 
 from src.core import config as C
 from src.mining import huim
-from src.mining.huim import mine_high_utility
+from src.mining.huim import java_available, mine_high_utility
 
 needs_spmf = pytest.mark.skipif(
-    shutil.which("java") is None or not C.SPMF_JAR.exists(),
+    not java_available() or not C.SPMF_JAR.exists(),
     reason="needs Java and tools/spmf.jar (download from the official SPMF site)",
 )
 

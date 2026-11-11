@@ -4,7 +4,19 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$ROOT_DIR"
 
-MODE="${1:---replay}"
+if [[ -d "/opt/homebrew/opt/openjdk/bin" && ":$PATH:" != *":/opt/homebrew/opt/openjdk/bin:"* ]]; then
+  export PATH="/opt/homebrew/opt/openjdk/bin:$PATH"
+fi
+
+MODE="${1:-}"
+if [[ -z "$MODE" ]]; then
+  if .venv/bin/python -c 'from dotenv import dotenv_values; import sys; k=dotenv_values(".env").get("GEMINI_API_KEY", "").strip(); sys.exit(0 if k and k != "your_key_here" else 1)' 2>/dev/null; then
+    MODE="--live"
+  else
+    MODE="--replay"
+  fi
+fi
+
 API_PORT="${API_PORT:-8000}"
 UI_PORT="${UI_PORT:-8501}"
 case "$MODE" in
@@ -46,12 +58,9 @@ for port in ports:
 PY
 
 if ! command -v java >/dev/null 2>&1; then
-  printf 'Java 11 or newer is required for the money-mining demo. Install Java, then retry.\n' >&2
-  exit 1
-fi
-if [[ ! -f tools/spmf.jar ]]; then
-  printf 'Missing tools/spmf.jar. Download it using the instructions in tools/README.txt, then retry.\n' >&2
-  exit 1
+  printf 'Notice: Java 11+ not found. High-utility money-mining will be disabled (frequent and rare pattern mining remain available).\n' >&2
+elif [[ ! -f tools/spmf.jar ]]; then
+  printf 'Notice: tools/spmf.jar not found. High-utility money-mining will be disabled (frequent and rare pattern mining remain available).\n' >&2
 fi
 
 if [[ ! -f data/processed/clean_transactions.csv ]]; then

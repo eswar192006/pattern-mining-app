@@ -1,6 +1,8 @@
 ﻿log_file,line,type,status,category,question,problems,model,prompt_version
-llm_requests.jsonl,7,turn,ok,self_correction,Which products are usually bought together?,"[""The JSON did not match the required format: spec.top_k: Input should be greater than or equal to 1.""]",gemini-3.6-flash,legacy/unversioned
-llm_requests.jsonl,16,explanation,unknown,number_check_or_answer,Which products are usually bought together?,"[""product names that are not in the data: 'JUMBO BAG RED RETROSPOT. T'"",""product names that are not in the data: 'JUMBO BAG RED RETROSPOT. JUMBO BAG PINK POLKADOT'""]",,legacy/unversioned
+llm_requests.jsonl,3,turn,llm_unavailable,llm_unavailable,can you suggest me the best shoes for running,[],local-replay,top-k-positive-v1
+llm_requests.jsonl,4,turn,llm_unavailable,llm_unavailable,suggest me the best shoes for running,[],local-replay,top-k-positive-v1
+llm_requests.jsonl,5,turn,llm_unavailable,llm_unavailable,Show me lots of hidden gems in weekend orders.,[],local-replay,top-k-positive-v1
+llm_requests.jsonl,8,turn,llm_unavailable,llm_unavailable,what is most selled item in last week,[],local-replay,top-k-positive-v1
 evaluation_llm_understanding.jsonl,1,turn,llm_unavailable,llm_unavailable,Which products are usually bought together?,[],gemini-3.6-flash,legacy/unversioned
 evaluation_llm_understanding.jsonl,2,turn,llm_unavailable,llm_unavailable,Any unusual pairs that rarely sell but always go together?,[],gemini-3.6-flash,legacy/unversioned
 evaluation_llm_understanding.jsonl,3,turn,llm_unavailable,llm_unavailable,Which combinations earn the most money?,[],gemini-3.6-flash,legacy/unversioned

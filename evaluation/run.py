@@ -36,7 +36,7 @@ import plotly.express as px
 import pandas as pd
 
 from src.core import config as C
-from src.core.errors import LLMUnavailable
+from src.core.errors import EngineUnavailable, LLMUnavailable
 from src.core.request import MiningRequest
 from src.mining.engine import EngineResult
 from src.llm.client import GeminiClient
@@ -137,7 +137,18 @@ class CachedPacedLLM:
             time.sleep(delay)
         self.last_call = time.monotonic()
         self.new_calls += 1
-        value = self.client.generate_json(system, user, schema) if mode == "json" else self.client.generate_text(system, user)
+        for attempt in range(4):
+            try:
+                value = self.client.generate_json(system, user, schema) if mode == "json" else self.client.generate_text(system, user)
+                break
+            except Exception as e:
+                msg = str(e).lower()
+                if ("rate" in msg or "quota" in msg or "429" in msg or "busy" in msg) and attempt < 3:
+                    wait_s = 15 * (attempt + 1)
+                    print(f"Rate limited: backing off for {wait_s}s (attempt {attempt+1}/3)...", flush=True)
+                    time.sleep(wait_s)
+                    continue
+                raise
         self.cache[key] = {"value": value}
         write_json(LLM_CACHE, self.cache)
         return value
@@ -391,7 +402,11 @@ def run_benchmarks(fractions, repeats):
         for kind, request in experiments:
             for repeat in range(1, repeats + 1):
                 start = time.perf_counter()
-                result = run_mining(request, df=sample)
+                try:
+                    result = run_mining(request, df=sample)
+                except EngineUnavailable as e:
+                    print(f"{kind} skipped: {e}", flush=True)
+                    break
                 elapsed = time.perf_counter() - start
                 rows.append({"kind": kind, "algorithm": request.get("algorithm") or "default",
                              "data_fraction": fraction, "baskets": n, "rows": len(sample),

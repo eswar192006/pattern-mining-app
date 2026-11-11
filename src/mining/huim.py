@@ -43,6 +43,34 @@ JAR_HELP = (
 )
 
 
+def find_java() -> str | None:
+    """Find a usable java executable path, or None if unavailable."""
+    if shutil.which("java") is not None:
+        try:
+            proc = subprocess.run(["java", "-version"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            if proc.returncode == 0:
+                return "java"
+        except OSError:
+            pass
+
+    java_home = os.environ.get("JAVA_HOME")
+    if java_home:
+        cand = os.path.join(java_home, "bin", "java")
+        if os.path.isfile(cand) and os.access(cand, os.X_OK):
+            return cand
+
+    for cand in ("/opt/homebrew/opt/openjdk/bin/java", "/usr/local/opt/openjdk/bin/java"):
+        if os.path.isfile(cand) and os.access(cand, os.X_OK):
+            return cand
+
+    return None
+
+
+def java_available() -> bool:
+    """Return True only if java binary exists AND can execute successfully (not macOS stub)."""
+    return find_java() is not None
+
+
 def _validate(min_utility, min_utility_pct, max_len, min_len, algorithm):
     if algorithm not in ALGORITHMS:
         raise InvalidRequest(f"algorithm must be one of {ALGORITHMS}")
@@ -136,10 +164,10 @@ def mine_high_utility(
             f"({floor:.2%} of total sales {total:,.0f}) for max_len={max_len}: mining would take too long "
             "or return too many itemsets. Use a higher value or a smaller max_len.")
 
-    if shutil.which("java") is None:
-        raise EngineUnavailable("Java was not found. Install a JDK (version 11 or newer) and try again.")
     if not C.SPMF_JAR.exists():
         raise EngineUnavailable(JAR_HELP)
+    if not java_available():
+        raise EngineUnavailable("Java was not found. Install a JDK (version 11 or newer) and try again.")
 
     start = time.perf_counter()
     names = sorted(d["item"].unique())
@@ -150,7 +178,8 @@ def mine_high_utility(
     with tempfile.TemporaryDirectory() as tmp:
         inp, out, log = (os.path.join(tmp, x) for x in ("in.txt", "out.txt", "log.txt"))
         _write_spmf_input(d, inp, ids)
-        jvm = ["java"] + ([f"-Xmx{java_memory}"] if java_memory else []) + ["-jar", str(C.SPMF_JAR), "run"]
+        java_bin = find_java() or "java"
+        jvm = [java_bin] + ([f"-Xmx{java_memory}"] if java_memory else []) + ["-jar", str(C.SPMF_JAR), "run"]
         if algorithm == "fhm+":
             cmd = jvm + ["FHM+", inp, out, str(minutil_cents), str(min_len), str(max_len)]
         else:
