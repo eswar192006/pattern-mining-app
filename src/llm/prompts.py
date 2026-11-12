@@ -70,7 +70,7 @@ STRICTNESS ("strictness")
 - "loose": the user wants a broader or longer list ("lots of", "any", "also less common").
 - "normal": the default, when nothing is said.
 - "strict": the user wants only the best ("very", "only the top", "strongest", "most").
-Never invent thresholds. Set min_support (a fraction), max_support, min_count, min_strength, min_utility (money) or min_utility_pct (a fraction of total sales) ONLY when the user states an explicit number, converting it: "at least 2% of orders" -> min_support 0.02; "earning over 5000" -> min_utility 5000; "at least 3% of sales" -> min_utility_pct 0.03.
+Never invent thresholds. Set min_support (a fraction), max_support, min_count, min_strength, min_utility (money) or min_utility_pct (a fraction of total sales) ONLY when the user states an explicit number, converting it: "at least 2% of orders" -> min_support 0.02; "minimum strength to 5%" -> min_strength 0.05; "earning over 5000" -> min_utility 5000; "at least 3% of sales" -> min_utility_pct 0.03.
 
 FILTERS ("filters")
 - weekdays: ["Sunday"] for "on Sundays". weekend: true for "weekend(s)", false for "weekday(s)". months: numbers 1-12 ("in December" -> [12]).

@@ -76,9 +76,9 @@ def test_status_pills_for_ready_and_broken_systems():
 
 def test_blocking_problems_name_the_fix():
     assert view.blocking_problem(HEALTH_OK) is None and view.blocking_problem(None) is None
-    no_key = dict(HEALTH_OK, llm={"ready": False, "model": None, "error": "No Gemini API key found."})
+    no_key = dict(HEALTH_OK, llm={"ready": False, "model": None, "error": "Ollama is unavailable."})
     head, fix = view.blocking_problem(no_key)
-    assert "language model" in head and "No Gemini API key found." in fix and "restart" in fix.lower()
+    assert "language model" in head and "Ollama is unavailable." in fix and "restart" in fix.lower()
     no_data = dict(HEALTH_OK, data={"ready": False, "baskets": None, "error": "clean file missing"})
     head, fix = view.blocking_problem(no_data)
     assert "data" in head and "prepare_data" in fix

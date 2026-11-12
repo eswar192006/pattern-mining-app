@@ -126,6 +126,7 @@ def test_a_missing_key_or_missing_data_degrades_gracefully(monkeypatch, tmp_path
     for var in ("GEMINI_API_KEY", "GOOGLE_API_KEY", "GEMINI_MODEL"):
         monkeypatch.delenv(var, raising=False)
     monkeypatch.setattr(C, "ROOT", tmp_path)
+    monkeypatch.setenv("LLM_PROVIDER", "gemini")
     c = TestClient(create_app(df=DF), raise_server_exceptions=False)             # no model client could be created
     h = c.get("/health").json()
     assert h["status"] == "degraded" and not h["llm"]["ready"] and "GEMINI_API_KEY" in h["llm"]["error"]

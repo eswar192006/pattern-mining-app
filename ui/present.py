@@ -33,6 +33,7 @@ REFINEMENTS = {
     "frequent": [("Only Sundays", "only on Sundays"), ("Stricter", "make it stricter"), ("Show more", "show me more results"),
                  ("By money instead", "now show me what earns the most money"), ("Unusual pairs", "now show me the unusual hidden pairs")],
     "rare": [("Only Sundays", "only on Sundays"), ("Stricter", "make it stricter"), ("Show more", "show me more results"),
+             ("Try 5% strength", "set minimum strength to 5%"),
              ("Often together instead", "now show me what is bought together most often"),
              ("By money instead", "now show me what earns the most money")],
     "high_utility": [("Only Sundays", "only on Sundays"), ("Stricter", "make it stricter"), ("Show more", "show me more results"),

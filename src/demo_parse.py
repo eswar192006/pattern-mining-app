@@ -1,11 +1,11 @@
-"""Ask questions in plain English. Gemini translates them; everything else is exact.
+"""Ask questions in plain English. The configured model translates them; everything else is exact.
 
     python -m src.demo_parse "Which products sell together on Sundays?"
     python -m src.demo_parse "Biggest earners in Germany" --run     # also mine and show results
     python -m src.demo_parse "What sells together on Sundays?" --explain   # ... and write the answer in plain English
     python -m src.demo_parse                                         # interactive: type questions, empty line to quit
 
-Needs: your Gemini key in .env, and the cleaned data (python -m src.prepare_data).
+Needs: Ollama running with the configured model (or Gemini configured in .env), and cleaned data.
 --run on a high-utility question also needs Java and tools/spmf.jar. --explain implies --run.
 """
 import sys
@@ -13,7 +13,7 @@ import textwrap
 
 from src.core.errors import LLMUnavailable, MiningError
 from src.demo_engine import print_result
-from src.llm.client import GeminiClient
+from src.llm.client import create_llm_client
 from src.llm.explainer import explain_result
 from src.llm.parser import parse_question
 from src.mining.engine import run_mining
@@ -61,7 +61,7 @@ if __name__ == "__main__":
     explain = "--explain" in sys.argv
     run = "--run" in sys.argv or explain
     try:
-        llm = GeminiClient()
+        llm = create_llm_client()
     except LLMUnavailable as e:
         sys.exit(str(e))
     if args:

@@ -396,7 +396,7 @@ def test_the_interactive_chat_loop(monkeypatch, capsys):
     llm = FakeLLM([J({"intent": "mining_request", "spec": {"kind": "frequent", "strictness": "strict"}}),
                    J({"intent": "mining_request", "spec": {"filters": {"weekdays": ["Sunday"]}}})])
     typed = iter(["what sells together?", "only on Sundays", "/spec", "/undo", "/undo", ""])
-    monkeypatch.setattr(client_module, "GeminiClient", lambda: llm)
+    monkeypatch.setattr(client_module, "create_llm_client", lambda: llm)
     monkeypatch.setattr(builtins, "input", lambda prompt="": next(typed))
     monkeypatch.setattr(sys, "argv", ["demo_chat"])
     runpy.run_module("src.demo_chat", run_name="__main__")
