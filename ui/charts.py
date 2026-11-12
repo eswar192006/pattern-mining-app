@@ -14,7 +14,7 @@ import math
 import numpy as np
 import plotly.graph_objects as go
 
-from ui.present import combo_lines, combo_name, format_primary, kind_info, plain_metrics, primary_value, short
+from ui.present import combo_lines, combo_name, format_primary, plain_metrics, primary_value, short
 
 INK = "#c9d1f5"
 GRID = "rgba(255,255,255,0.10)"

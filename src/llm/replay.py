@@ -12,7 +12,8 @@ from src.core.errors import LLMUnavailable
 
 
 def _normalise(text: str) -> str:
-    return " ".join(text.casefold().split())
+    clean = re.sub(r"[?!.,]+$", "", text.strip())
+    return " ".join(clean.casefold().split())
 
 
 class ReplayLLM:
@@ -52,9 +53,17 @@ class ReplayLLM:
             message = re.findall(r"(?:^|\n)Message:\s*([^\n]+)", user)
             is_clarification = bool(message and entry.get("clarification_reply")
                                     and _normalise(message[-1]) == _normalise(entry["clarification_reply"]))
-            response = {"intent": "mining_request",
-                        "spec": entry["clarification_spec"] if is_clarification else entry["spec"],
-                        "fresh": False if is_clarification else True}
+            is_followup = entry.get("is_followup", False)
+            if is_clarification:
+                spec = entry.get("clarification_spec", {})
+                fresh = False
+            elif is_followup:
+                spec = entry.get("followup_spec", entry["spec"])
+                fresh = False
+            else:
+                spec = entry["spec"]
+                fresh = True
+            response = {"intent": "mining_request", "spec": spec, "fresh": fresh}
         else:
             response = {"intent": "mining_request", "spec": entry["spec"], "message": None}
         return json.dumps(response)

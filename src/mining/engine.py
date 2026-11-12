@@ -23,7 +23,7 @@ import pandas as pd
 from pydantic import ValidationError
 
 from src.core import config as C
-from src.core.errors import InvalidRequest, LimitExceeded, MiningError
+from src.core.errors import InvalidRequest, LimitExceeded
 from src.core.request import MiningRequest
 from src.mining import hints
 from src.mining.data_loader import load_clean, to_baskets

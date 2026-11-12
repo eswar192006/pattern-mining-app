@@ -1,11 +1,18 @@
-# Look and feel of the page (read when you run `streamlit run ui/app.py` from the project folder).
+# Executive modern dark theme
 [theme]
 base = "dark"
-primaryColor = "#7c5cff"
-backgroundColor = "#0b0d1c"
-secondaryBackgroundColor = "#151831"
-textColor = "#e6eaff"
+primaryColor = "#6366F1"
+backgroundColor = "#0B0F19"
+secondaryBackgroundColor = "#151D2E"
+textColor = "#F8FAFC"
+borderColor = "#26334D"
 font = "sans serif"
+showWidgetBorder = true
+showSidebarBorder = true
 
 [browser]
 gatherUsageStats = false
+
+[server]
+headless = true
+runOnSave = true

@@ -7,9 +7,10 @@ import pytest
 from src.core import config as C
 from src.core.errors import EngineUnavailable, InvalidRequest, LimitExceeded, MiningError
 from src.mining.engine import run_mining
+from src.mining.huim import java_available
 
 needs_spmf = pytest.mark.skipif(
-    shutil.which("java") is None or not C.SPMF_JAR.exists(),
+    not java_available() or not C.SPMF_JAR.exists(),
     reason="needs Java and tools/spmf.jar",
 )
 

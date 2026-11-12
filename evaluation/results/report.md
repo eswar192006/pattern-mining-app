@@ -38,18 +38,15 @@ Mean runtime over repeated runs on this machine (seconds):
 
 | Kind | Algorithm | Baskets | Mean s | Std. dev. s | Runs |
 |---|---|---:|---:|---:|---:|
-| frequent | apriori | 4,904 | 0.120 | 0.001 | 2 |
-| frequent | apriori | 9,809 | 0.225 | 0.001 | 2 |
-| frequent | apriori | 19,618 | 0.427 | 0.001 | 2 |
-| frequent | fpgrowth | 4,904 | 0.217 | 0.005 | 2 |
-| frequent | fpgrowth | 9,809 | 0.449 | 0.002 | 2 |
-| frequent | fpgrowth | 19,618 | 0.884 | 0.006 | 2 |
-| high_utility | fhm+ | 4,904 | 0.972 | 0.003 | 2 |
-| high_utility | fhm+ | 9,809 | 1.521 | 0.126 | 2 |
-| high_utility | fhm+ | 19,618 | 2.608 | 0.131 | 2 |
-| rare | default | 4,904 | 0.176 | 0.004 | 2 |
-| rare | default | 9,809 | 0.327 | 0.002 | 2 |
-| rare | default | 19,618 | 0.605 | 0.019 | 2 |
+| frequent | apriori | 4,904 | 0.194 | 0.001 | 2 |
+| frequent | apriori | 9,809 | 0.365 | 0.001 | 2 |
+| frequent | apriori | 19,618 | 0.686 | 0.004 | 2 |
+| frequent | fpgrowth | 4,904 | 0.354 | 0.020 | 2 |
+| frequent | fpgrowth | 9,809 | 0.730 | 0.004 | 2 |
+| frequent | fpgrowth | 19,618 | 1.412 | 0.037 | 2 |
+| rare | default | 4,904 | 0.305 | 0.004 | 2 |
+| rare | default | 9,809 | 0.556 | 0.009 | 2 |
+| rare | default | 19,618 | 0.969 | 0.008 | 2 |
 
 Thresholds were held constant across data sizes. Results describe this dataset and machine; they are not cross-machine speed claims.
 

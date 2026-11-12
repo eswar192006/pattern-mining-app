@@ -49,7 +49,7 @@ MAX_HUIM_OUTPUT_MB = 100        # kill it if its output file grows beyond this
 HUIM_MIN_UTILITY_PCT_FLOOR = {2: 0.0002, 3: 0.0007}
 
 # Language layer (Step 8)
-GEMINI_MODEL_DEFAULT = "gemini-3.8-flash"   # override with GEMINI_MODEL in .env (names change quickly)
+GEMINI_MODEL_DEFAULT = "gemini-3.5-flash-lite"   # override with GEMINI_MODEL in .env (names change quickly)
 LLM_TIMEOUT_S = 120
 MAX_QUESTION_CHARS = 1000
 LLM_LOG_FILE = ROOT / "logs" / "llm_requests.jsonl"   # every question and outcome, kept locally

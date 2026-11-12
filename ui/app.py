@@ -26,22 +26,200 @@ HEALTH_REFRESH_S = 30
 
 CSS = """
 <style>
-.hero{background:linear-gradient(120deg,#7c5cff 0%,#c04bff 45%,#22d3ee 100%);border-radius:16px;padding:20px 26px;margin-bottom:12px}
-.hero h1{margin:0;font-size:1.65rem;line-height:1.25;color:#fff}
-.hero p{margin:6px 0 0;color:rgba(255,255,255,.92);font-size:.98rem}
-.pill{display:inline-block;padding:3px 11px;border-radius:999px;font-size:.78rem;margin:0 6px 6px 0;border:1px solid rgba(255,255,255,.18)}
-.pill.ok{background:rgba(74,222,128,.14);color:#86efac}
-.pill.warn{background:rgba(255,180,84,.14);color:#ffb454}
-.pill.bad{background:rgba(255,92,157,.16);color:#ff8fb8}
-.pill.muted,.pill.info{background:rgba(201,209,245,.10);color:#c9d1f5}
-.chip{display:inline-block;padding:4px 12px;border-radius:10px;font-size:.85rem;margin:0 8px 8px 0;background:rgba(124,92,255,.18);border:1px solid rgba(124,92,255,.5)}
-.chip b{color:#c9b8ff;font-weight:600;margin-right:6px}
-.metric{border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:12px 16px;background:rgba(255,255,255,.04)}
-.metric .v{font-size:1.7rem;font-weight:700;line-height:1.2}
-.metric .l{font-size:.8rem;opacity:.75;text-transform:uppercase;letter-spacing:.04em}
-.metric .c{font-size:.78rem;opacity:.65;margin-top:2px}
-.kind-title{font-size:1.15rem;font-weight:700;margin-bottom:4px}
-.small{font-size:.85rem;opacity:.75}
+/* Typography: never override icon fonts so Streamlit ligatures like _arrow_right work properly */
+.stApp h1, .stApp h2, .stApp h3, .stApp h4, .stApp p, .hero, .metric, .kind-title, .small, .chip, .pill {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Modern Header / Hero */
+.hero {
+    background: radial-gradient(130% 120% at 50% 0%, rgba(99, 102, 241, 0.22) 0%, rgba(30, 41, 59, 0.4) 60%, rgba(11, 15, 25, 0.8) 100%),
+                linear-gradient(180deg, #161F33 0%, #0F172A 100%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 18px;
+    padding: 24px 28px;
+    margin-bottom: 20px;
+    box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+.hero-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 10px;
+    background: rgba(99, 102, 241, 0.15);
+    border: 1px solid rgba(99, 102, 241, 0.35);
+    border-radius: 9999px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #A5B4FC;
+    margin-bottom: 8px;
+}
+.hero h1 {
+    margin: 0;
+    font-size: 1.85rem;
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    color: #FFFFFF;
+    line-height: 1.25;
+}
+.hero p {
+    margin: 8px 0 0 0;
+    color: #94A3B8;
+    font-size: 0.98rem;
+    line-height: 1.5;
+}
+
+/* Status Badges */
+.pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 11px;
+    border-radius: 999px;
+    font-size: 0.76rem;
+    font-weight: 500;
+    margin: 0 4px 4px 0;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.03);
+    color: #E2E8F0;
+}
+.pill.ok {
+    background: rgba(16, 185, 129, 0.10);
+    border-color: rgba(16, 185, 129, 0.3);
+    color: #6EE7B7;
+}
+.pill.warn {
+    background: rgba(245, 158, 11, 0.10);
+    border-color: rgba(245, 158, 11, 0.3);
+    color: #FCD34D;
+}
+.pill.bad {
+    background: rgba(239, 68, 68, 0.10);
+    border-color: rgba(239, 68, 68, 0.3);
+    color: #FCA5A5;
+}
+.pill.muted, .pill.info {
+    background: rgba(148, 163, 184, 0.08);
+    border-color: rgba(148, 163, 184, 0.2);
+    color: #CBD5E1;
+}
+
+/* Category cards */
+.kind-title {
+    font-size: 1.12rem;
+    font-weight: 700;
+    color: #F8FAFC;
+    letter-spacing: -0.01em;
+    margin-bottom: 6px;
+}
+.small {
+    font-size: 0.86rem;
+    color: #94A3B8;
+    line-height: 1.45;
+    margin-bottom: 12px;
+}
+
+/* Modern Metric Cards */
+.metric {
+    background: linear-gradient(180deg, rgba(30, 41, 59, 0.5) 0%, rgba(15, 23, 42, 0.7) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    padding: 16px 20px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+    position: relative;
+    overflow: hidden;
+}
+.metric::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #6366F1 0%, #38BDF8 100%);
+}
+.metric .l {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #94A3B8;
+    margin-bottom: 4px;
+}
+.metric .v {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: #FFFFFF;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+}
+.metric .c {
+    font-size: 0.8rem;
+    color: #38BDF8;
+    margin-top: 4px;
+    font-weight: 500;
+}
+
+/* Filter / Chips */
+.chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 12px;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    margin: 0 6px 6px 0;
+    background: rgba(99, 102, 241, 0.12);
+    border: 1px solid rgba(99, 102, 241, 0.3);
+    color: #E0E7FF;
+}
+.chip b {
+    color: #A5B4FC;
+    font-weight: 600;
+    margin-right: 6px;
+}
+
+/* Streamlit Button Polish: Wrap text onto multiple lines cleanly */
+div[data-testid="stButton"] > button {
+    border-radius: 9px;
+    font-weight: 500;
+    font-size: 0.86rem;
+    white-space: normal !important;
+    word-break: break-word !important;
+    height: auto !important;
+    min-height: 42px;
+    line-height: 1.35;
+    padding: 8px 12px;
+    text-align: left;
+    transition: all 0.15s ease-in-out;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.03);
+    color: #F1F5F9;
+}
+div[data-testid="stButton"] > button:hover {
+    border-color: #6366F1;
+    background: rgba(99, 102, 241, 0.12);
+    color: #FFFFFF;
+    transform: translateY(-1px);
+}
+div[data-testid="stButton"] > button:active {
+    transform: translateY(0);
+}
+
+/* Chat container polish */
+div[data-testid="stChatMessage"] {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 16px;
+    padding: 16px 20px;
+    margin-bottom: 12px;
+}
+div[data-testid="stChatInput"] {
+    border-radius: 14px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+}
 </style>
 """
 
@@ -100,11 +278,12 @@ def recheck() -> None:
 # ------------------------------------------------------------------------------------------ header and screens
 def render_header() -> None:
     st.markdown(CSS, unsafe_allow_html=True)
-    st.markdown('<div class="hero"><h1>🛍️ Sales pattern explorer</h1>'
-                "<p>Ask in plain English. A language model understands and explains; exact algorithms do all the counting.</p></div>",
+    st.markdown('<div class="hero"><div class="hero-tag">✨ Hybrid LLM + SPMF</div>'
+                '<h1>🛍️ Sales Pattern Explorer</h1>'
+                "<p>Natural language-driven adaptive pattern mining in sales analytics. Translate questions into rigorous mining queries; exact algorithms discover proven co-occurrence patterns.</p></div>",
                 unsafe_allow_html=True)
     if (st.session_state.health or {}).get("demo_mode") == "replay":
-        st.info("Replay demo is active. Saved responses interpret the six walkthrough questions; all results are mined from the local data. No live model requests are sent.")
+        st.info("Replay demo is active. Saved responses interpret the six walkthrough questions; all results are mined from the local data. No Gemini requests are sent.")
     pills = view.readiness_pills(st.session_state.health)
     st.markdown("".join(pill(p["label"], p["state"], p["detail"]) for p in pills), unsafe_allow_html=True)
 
@@ -113,7 +292,7 @@ def render_blocked(headline: str, detail: str, command: str | None = None) -> No
     st.error(f"**{headline}**\n\n{detail}")
     if command:
         st.code(command, language="bash")
-    st.button("Check again", key="recheck", on_click=recheck)
+    st.button("Check again", key="recheck", on_click=recheck, **fit(st.button))
 
 
 def render_welcome(health: dict | None) -> None:
@@ -128,19 +307,20 @@ def render_welcome(health: dict | None) -> None:
             if kind == "high_utility" and not java_ok:
                 st.caption("⚠️ Needs Java, which was not found on the server.")
             for i, example in enumerate(EXAMPLES[kind]):
-                st.button(example, key=f"ex_{kind}_{i}", on_click=queue_job, args=("chat", example))
+                st.button(example, key=f"ex_{kind}_{i}", on_click=queue_job, args=("chat", example), **fit(st.button))
 
 
 def render_sidebar() -> None:
     ss = st.session_state
     with st.sidebar:
-        st.markdown("### Your data")
+        st.markdown("### 📊 Dataset overview")
         cat = ss.catalog
         if cat:
-            st.metric("Orders", f"{cat['baskets']:,}")
-            st.metric("Products", f"{cat['products']:,}")
+            c1, c2 = st.columns(2)
+            c1.metric("Orders", f"{cat['baskets']:,}")
+            c2.metric("Products", f"{cat['products']:,}")
             if cat.get("date_range"):
-                st.caption(f"From {cat['date_range'][0]} to {cat['date_range'][1]}")
+                st.caption(f"📅 {cat['date_range'][0]} to {cat['date_range'][1]}")
             days = cat.get("weekdays_with_orders") or []
             missing = [d for d in ("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday") if d not in days]
             if missing:
@@ -155,9 +335,14 @@ def render_sidebar() -> None:
             for kind in KINDS:
                 st.markdown(f"**{kind_info(kind)['title']}**")
                 for i, example in enumerate(EXAMPLES[kind]):
-                    st.button(example, key=f"side_ex_{kind}_{i}", on_click=queue_job, args=("chat", example))
-        st.button("Check connection", key="side_recheck", on_click=recheck)
-        st.caption(f"Server: {ss.api.base_url}")
+                    st.button(example, key=f"side_ex_{kind}_{i}", on_click=queue_job, args=("chat", example), **fit(st.button))
+        st.button("Check connection", key="side_recheck", on_click=recheck, **fit(st.button))
+        health = ss.health or {}
+        data = health.get("data") or {}
+        baskets = data.get("baskets")
+        model_name = (health.get("llm") or {}).get("model") or "Active"
+        meta = f"Orders: {baskets:,} · Model: {esc(model_name)}" if baskets else f"Model: {esc(model_name)}"
+        st.markdown(f"<div class='small' style='color:#64748B;margin-top:6px;'>{meta}</div>", unsafe_allow_html=True)
 
 
 # ------------------------------------------------------------------------------------------ one reply
@@ -262,18 +447,18 @@ def render_questions(reply: dict) -> None:
 def render_next_steps(reply: dict) -> None:
     """Refinement chips, undo, run again and start over, under the newest reply."""
     ss = st.session_state
-    st.markdown('<div class="small">Try next</div>', unsafe_allow_html=True)
+    st.markdown('<div class="small" style="font-weight:700;letter-spacing:0.04em;text-transform:uppercase;color:#94A3B8;margin-top:10px;">Try next</div>', unsafe_allow_html=True)
     buttons = list(view.refinement_buttons(view.reply_kind(reply)))
     if reply.get("status") == "ok" and not view.has_results(reply):
         buttons.insert(0, ("Loosen it", "make it looser"))
     if reply.get("status") == "ok":
         for col, (i, (label, message)) in zip(st.columns(len(buttons)), enumerate(buttons)):
-            col.button(label, key=f"ref_{i}", on_click=queue_job, args=("chat", message))
+            col.button(label, key=f"ref_{i}", on_click=queue_job, args=("chat", message), **fit(st.button))
     session = reply.get("session") or {}
     c1, c2, c3, _ = st.columns([1, 1, 1, 3])
-    c1.button("↩ Undo", key="undo", disabled=not session.get("can_undo"), on_click=queue_job, args=("undo",))
-    c2.button("↻ Run again", key="rerun", disabled=not session.get("current"), on_click=queue_job, args=("run",))
-    c3.button("✕ Start over", key="reset", on_click=queue_job, args=("reset",))
+    c1.button("↩ Undo", key="undo", disabled=not session.get("can_undo"), on_click=queue_job, args=("undo",), **fit(st.button))
+    c2.button("↻ Run again", key="rerun", disabled=not session.get("current"), on_click=queue_job, args=("run",), **fit(st.button))
+    c3.button("✕ Start over", key="reset", on_click=queue_job, args=("reset",), **fit(st.button))
     if reply.get("status") == "llm_unavailable" and ss.last_message:
         st.button("Try the same message again", key="retry_msg", on_click=queue_job, args=("chat", ss.last_message))
 

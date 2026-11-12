@@ -10,7 +10,6 @@ Provider credentials, when used, stay on the server and are never returned.
 """
 import logging
 import os
-import shutil
 
 import uvicorn
 from fastapi import FastAPI, Request
@@ -20,7 +19,6 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel, ConfigDict, Field
 
 from src.core import config as C
-from src.core.catalog import Catalog
 from src.core.errors import LLMUnavailable
 from src.core.pipeline import Pipeline
 from src.core.presets import KIND_DESCRIPTIONS, PRESETS
@@ -120,7 +118,8 @@ def create_app(llm=None, df=None, store: SessionStore | None = None, limiter: Ra
     # ---- endpoints
     @app.get("/health")
     def health():
-        java, jar = shutil.which("java") is not None, C.SPMF_JAR.exists()
+        from src.mining.huim import java_available
+        java, jar = java_available(), C.SPMF_JAR.exists()
         ready = pipeline is not None
         return {"status": "ok" if ready else "degraded",
                 "demo_mode": "replay" if replay_mode else "live",

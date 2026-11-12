@@ -10,6 +10,11 @@
     "answer": "These combinations appear together in Sunday orders. Consider comparing them with the all-day results before choosing a targeted weekend promotion."
   },
   {
+    "question": "What do customers buy together on Sundays?",
+    "spec": {"kind": "frequent", "filters": {"weekdays": ["Sunday"]}},
+    "answer": "These combinations appear together in Sunday orders. Consider comparing them with the all-day results before choosing a targeted weekend promotion."
+  },
+  {
     "question": "Find rare but closely linked pairs in Germany.",
     "spec": {"kind": "rare", "filters": {"countries": ["Germany"]}},
     "clarification_reply": "Lower the minimum count to 2 or less",
@@ -17,9 +22,34 @@
     "answer": "These pairs are uncommon in the selected German orders but strongly linked when they occur. They may suit a focused niche offer or a closer merchandising review."
   },
   {
+    "question": "Any unusual pairs that rarely sell but always go together?",
+    "spec": {"kind": "rare", "max_support": 0.005, "min_count": 10, "min_strength": 0.3, "max_len": 2},
+    "answer": "These pairs are uncommon in the selected orders but strongly linked when they occur. They may suit a focused niche offer or a closer merchandising review."
+  },
+  {
+    "question": "Show me lots of hidden gems in weekend orders.",
+    "spec": {"kind": "rare", "max_support": 0.005, "min_count": 10, "min_strength": 0.2, "max_len": 2, "filters": {"weekend": true}},
+    "answer": "These uncommon pairs are drawn from weekend orders and show strong mutual links. They can help identify niche items that perform well together on weekends."
+  },
+  {
     "question": "Top 5 pairs that earn over 20000.",
     "spec": {"kind": "high_utility", "min_utility": 20000, "max_len": 2, "top_k": 5},
     "answer": "These pairs have high combined sales revenue under the selected threshold. Consider testing them as coordinated offers; revenue here is not profit."
+  },
+  {
+    "question": "Which combinations earn the most money?",
+    "spec": {"kind": "high_utility", "min_utility_pct": 0.001, "max_len": 2},
+    "answer": "These pairs have high combined sales revenue under the selected threshold. Consider testing them as coordinated offers; revenue here is not profit."
+  },
+  {
+    "question": "Biggest earners in December, but leave out anything with bunting.",
+    "spec": {"kind": "high_utility", "min_utility_pct": 0.001, "max_len": 2, "filters": {"months": [12], "exclude_products": ["PARTY BUNTING", "SPOTTY BUNTING"]}},
+    "answer": "These combinations represent the top earners in December excluding bunting items."
+  },
+  {
+    "question": "Show me the most profitable combinations in Germany, only the very best.",
+    "spec": {"kind": "high_utility", "min_utility_pct": 0.002, "max_len": 2, "filters": {"countries": ["Germany"]}},
+    "answer": "These combinations are the top earners among orders placed in Germany."
   },
   {
     "question": "Find common bundles in December and January.",
@@ -30,5 +60,31 @@
     "question": "What sells together with the Regency Cakestand 3 Tier?",
     "spec": {"kind": "frequent", "filters": {"include_products": ["REGENCY CAKESTAND 3 TIER"]}},
     "answer": "These combinations all include the requested cakestand in the selected transactions. Consider testing the leading items as companion products."
+  },
+  {
+    "question": "What sells together with the regency cakestand?",
+    "spec": {"kind": "frequent", "filters": {"include_products": ["REGENCY CAKESTAND 3 TIER"]}},
+    "answer": "These combinations all include the requested cakestand in the selected transactions. Consider testing the leading items as companion products."
+  },
+  {
+    "question": "show me more results",
+    "is_followup": true,
+    "followup_spec": {"min_count": 2, "min_strength": 0.1, "min_support": 0.005},
+    "spec": {"kind": "rare", "min_count": 2, "min_strength": 0.1},
+    "answer": "Here are additional combinations found by broadening the thresholds to reveal more patterns."
+  },
+  {
+    "question": "more results",
+    "is_followup": true,
+    "followup_spec": {"min_count": 2, "min_strength": 0.1, "min_support": 0.005},
+    "spec": {"kind": "rare", "min_count": 2, "min_strength": 0.1},
+    "answer": "Here are additional combinations found by broadening the thresholds to reveal more patterns."
+  },
+  {
+    "question": "show more",
+    "is_followup": true,
+    "followup_spec": {"min_count": 2, "min_strength": 0.1, "min_support": 0.005},
+    "spec": {"kind": "rare", "min_count": 2, "min_strength": 0.1},
+    "answer": "Here are additional combinations found by broadening the thresholds to reveal more patterns."
   }
 ]
